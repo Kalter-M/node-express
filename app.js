@@ -3,7 +3,7 @@ const express = require('express');
 const fileUpload = require('express-fileupload');
 const logger = require('morgan');
 
-const apiRouter = require('./routes/file');
+const apiRouter = require('./routes/apiFileUploader');
 
 // var path = require('path');
 

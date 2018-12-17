@@ -3,19 +3,19 @@ const router = express.Router();
 const fs = require('fs');
 const { pipeline } = require('stream');
 
-const dir = './files/';
+const dir = './storage/';
 
-//MAIN
+//get file list
 router.get('/', function(req, res) {
     fs.readdir(dir ,function (err, files) {
         if(err) {
-            res.status(500).send('something wrong');
+            res.status(500).send('Unable to get file list');
             console.log(err);
         } else res.json(files);
     });
 });
 
-//DOWNLOAD FILE
+//download file
 router.get('/:fileId', function(req, res) {
     fs.readdir(dir ,function (err, files) {
         if(err) {
@@ -28,7 +28,7 @@ router.get('/:fileId', function(req, res) {
                     res,
                     function (err) {
                         if(err) {
-                            res.status(500).send('something wrong');
+                            res.status(500).send('File read error');
                             console.error(err);
                         }
                     }
@@ -38,32 +38,33 @@ router.get('/:fileId', function(req, res) {
     });
 });
 
-//DELETE FILE
+//delete file
 router.post('/:fileId', function (req,res) {
     const path = dir + req.params.fileId;
     fs.unlink(path, function (err) {
         if (err) {
-            res.status(500).send('something wrong');
+            res.status(500).send('File delete error');
             console.log(err);
         }
     });
-    res.status(200).send('file deleted')
+    res.status(200).send('Deleted')
 });
 
-//UPLOAD FILE
+//upload file
 router.post('/', function(req, res) {
-    if(req.query.name.indexOf('/') === -1) {
-        const path = dir + req.query.name;
-        pipeline(
-            req,
-            fs.createWriteStream(path),
-            function (err) {
-                if(err) {
-                    res.status(500).send('something wrong');
-                    console.error(err);
-                } else res.status(200).send('file uploaded');
-            });
-    } else res.status(500).send('give normal name');
-
+    if(!console.error(req.query.hasOwnProperty("name"))) {
+        if (req.query.name.indexOf('/') === -1) {
+            const path = dir + req.query.name;
+            pipeline(
+                req,
+                fs.createWriteStream(path),
+                function (err) {
+                    if (err) {
+                        res.status(500).send('File loading error');
+                        console.error(err);
+                    } else res.status(200).send('Uploaded');
+                });
+        } else res.status(400).send('Bad parameter "name"');
+    } else res.status(400).send('Parameter "name" not defined');
 });
 module.exports = router;
